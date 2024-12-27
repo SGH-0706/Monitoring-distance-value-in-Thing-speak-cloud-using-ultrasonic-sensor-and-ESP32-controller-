@@ -96,8 +96,69 @@ Prototype and build IoT systems without setting up servers or developing web sof
 
  
 # PROGRAM:
+#include "ThingSpeak.h"
+#include <WiFi.h>
+
+char ssid[] = "Quesk";
+char pass[] = "kkcs6853"; 
+
+
+const int trigger = 25;
+const int echo = 26;
+long T;
+float distanceCM;
+WiFiClient  client;
+
+unsigned long myChannelField = 2755120; 
+const int ChannelField = 1;
+const char * myWriteAPIKey = "4PF433V94YH4CF0L"; 
+
+void setup()
+{
+  Serial.begin(115200);
+  pinMode(trigger, OUTPUT);
+  pinMode(echo, INPUT);
+  WiFi.mode(WIFI_STA);
+  ThingSpeak.begin(client);
+}
+void loop()
+{
+  if (WiFi.status() != WL_CONNECTED)
+  {
+    Serial.print("Attempting to connect to SSID: ");
+    Serial.println(ssid);
+    while (WiFi.status() != WL_CONNECTED)
+    {
+      WiFi.begin(ssid, pass);
+      Serial.print(".");
+      delay(5000);
+    }
+    Serial.println("\nConnected.");
+  }
+  digitalWrite(trigger, LOW);
+  delay(1);
+  digitalWrite(trigger, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(trigger, LOW);
+  T = pulseIn(echo, HIGH);
+  distanceCM = T * 0.034;
+  distanceCM = distanceCM / 2;
+  Serial.print("Distance in cm: ");
+  Serial.println(distanceCM);
+  ThingSpeak.writeField(myChannelField, ChannelField, distanceCM, myWriteAPIKey);
+  delay(1000);
+}
 # CIRCUIT DIAGRAM:
+
+![expp 6 iot](https://github.com/user-attachments/assets/f739ad84-a073-4b2a-b2f3-a8b3a1eecb78)
+
 # OUTPUT:
+
+![exp 6 iot](https://github.com/user-attachments/assets/116ab21a-ee7a-4ea4-b940-aabc6c445987)
+
+![exp 6 iott](https://github.com/user-attachments/assets/46f0c541-b6e2-4e6d-a3f8-4ee9581be512)
+
+
 # RESULT:
 Thus the distance values are updated in the Thing speak cloud using ESP32 controller.
 
